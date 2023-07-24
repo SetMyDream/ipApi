@@ -9,7 +9,7 @@ import java.io.IOException
 
 object Main extends App {
 
-  private def getIPAddressFromApi: Task[Option[String]] = Task.effect {
+  def getIPAddressFromApi: Task[Option[String]] = Task.effect {
     val apiUrl = "https://api.ipify.org/?format=json"
     try {
       val jsonString = Source.fromURL(apiUrl).mkString
@@ -20,7 +20,7 @@ object Main extends App {
     }
   }
 
-  private def parseJson(str: String, key: String): String = {
+  def parseJson(str: String, key: String): String = {
     val mapper = new ObjectMapper()
     try {
       val jsonNode = mapper.readTree(str)
@@ -30,7 +30,7 @@ object Main extends App {
     }
   }
 
-  private val program: ZIO[Console, Throwable, Unit] = for {
+  val program: ZIO[Console, Throwable, Unit] = for {
     ipAddress <- getIPAddressFromApi
     _ <- putStrLn(ipAddress.getOrElse("Error fetching IP address from the API."))
   } yield ()
