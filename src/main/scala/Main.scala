@@ -1,4 +1,5 @@
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.typesafe.config.ConfigFactory
 
 import scala.io.Source
 import zio._
@@ -9,8 +10,10 @@ import java.io.IOException
 
 object Main extends App {
 
-  def getIPAddressFromApi: Option[String] = {
-    val apiUrl = "https://api.ipify.org/?format=json"
+  private val config = ConfigFactory.load()
+  private val apiUrl = config.getString("apiUrl")
+
+  def getIPAddressFromApi(apiUrl: String): Option[String] = {
     try {
       val jsonString = Source.fromURL(apiUrl).mkString
       val ipAddress = parseJson(jsonString, "ip")
@@ -36,7 +39,7 @@ object Main extends App {
   }
 
   val program: ZIO[Console, Throwable, Unit] = for {
-    ipAddress <- ZIO.effectTotal(getIPAddressFromApi)
+    ipAddress <- ZIO.effectTotal(getIPAddressFromApi(apiUrl))
     _ <- ipAddress match {
       case Some(ip) => putStrLn(ip)
       case None => putStrLn("Error fetching IP address from the API.")
